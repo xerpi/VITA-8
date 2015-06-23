@@ -23,16 +23,16 @@ int _start()
 	CtrlData pad, old_pad;
 	struct chip8_context chip8;
 	int i, pause = 0;
-	unsigned int disp_buf[chip8.disp_w*chip8.disp_h];
 
 	init_video();
 
 	chip8_init(&chip8, 64, 32);
 	chip8_loadrom_memory(&chip8, PONG2_bin, PONG2_bin_size);
+	unsigned int disp_buf[chip8.disp_w*chip8.disp_h];
 
-	#define SCALE 12
-	int pos_x = SCREEN_W/2 - (chip8.disp_w/2)*SCALE;
-	int pos_y = SCREEN_H/2 - (chip8.disp_h/2)*SCALE;
+	int scale = 12;
+	int pos_x = SCREEN_W/2 - (chip8.disp_w/2)*scale;
+	int pos_y = SCREEN_H/2 - (chip8.disp_h/2)*scale;
 
 	while (1) {
 		clear_screen();
@@ -66,13 +66,26 @@ int _start()
 			chip8_key_release(&chip8, 0xD);
 		}
 
+		if (pad.buttons & PSP2_CTRL_LTRIGGER) {
+			scale--;
+			if (scale < 1) scale = 1;
+			/* Re-center the image */
+			pos_x = SCREEN_W/2 - (chip8.disp_w/2)*scale;
+			pos_y = SCREEN_H/2 - (chip8.disp_h/2)*scale;
+		} else if (pad.buttons & PSP2_CTRL_RTRIGGER) {
+			scale++;
+			/* Don't go outside of the screen! */
+			if ((chip8.disp_w*scale) > SCREEN_W) scale--;
+			/* Re-center the image */
+			pos_x = SCREEN_W/2 - (chip8.disp_w/2)*scale;
+			pos_y = SCREEN_H/2 - (chip8.disp_h/2)*scale;
+		}
+
 		if (keys_down & PSP2_CTRL_START) {
 			pause = !pause;
 		}
 
-		if (pause) {
-			font_draw_stringf(SCREEN_W/2 - 50, SCREEN_H - 50, BLACK, "PAUSE");
-		} else {
+		if (!pause) {
 			for (i = 0; i < 20; i++) {
 				chip8_step(&chip8);
 			}
@@ -85,7 +98,11 @@ int _start()
 			pos_y,
 			chip8.disp_w,
 			chip8.disp_h,
-			SCALE);
+			scale);
+
+		if (pause) {
+			font_draw_stringf(SCREEN_W/2 - 40, SCREEN_H - 50, BLACK, "PAUSE");
+		}
 
 		old_pad = pad;
 		swap_buffers();
