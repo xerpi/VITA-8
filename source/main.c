@@ -20,16 +20,15 @@
 
 int _start()
 {
-	init_video();
-
 	CtrlData pad, old_pad;
-
 	struct chip8_context chip8;
+	int i, pause = 0;
+	unsigned int disp_buf[chip8.disp_w*chip8.disp_h];
+
+	init_video();
 
 	chip8_init(&chip8, 64, 32);
 	chip8_loadrom_memory(&chip8, PONG2_bin, PONG2_bin_size);
-
-	unsigned int disp_buf[chip8.disp_w*chip8.disp_h];
 
 	#define SCALE 12
 	int pos_x = SCREEN_W/2 - (chip8.disp_w/2)*SCALE;
@@ -67,11 +66,17 @@ int _start()
 			chip8_key_release(&chip8, 0xD);
 		}
 
-		int i;
-		for (i = 0; i < 20; i++) {
-			chip8_step(&chip8);
+		if (keys_down & PSP2_CTRL_START) {
+			pause = !pause;
 		}
-		//chip8_core_dump(&chip8);
+
+		if (pause) {
+			font_draw_stringf(SCREEN_W/2 - 50, SCREEN_H - 50, BLACK, "PAUSE");
+		} else {
+			for (i = 0; i < 20; i++) {
+				chip8_step(&chip8);
+			}
+		}
 
 		chip8_disp_to_buf(&chip8, disp_buf);
 

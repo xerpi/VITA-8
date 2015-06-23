@@ -37,7 +37,6 @@ $(TARGET).velf: $(TARGET).elf
 $(TARGET).elf: $(OBJS) $(STUBS_FULL)
 	$(CC) -Wl,-q -o $@ $^ $(CFLAGS)
 
-
 %.o: %.c
 	$(CC) -c -o $@ $< $(CFLAGS)
 
