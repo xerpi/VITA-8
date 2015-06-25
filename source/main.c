@@ -17,10 +17,11 @@
 
 #include "PONG2_bin.h"
 
+PSP2_MODULE_INFO(0, 0, "VITA-8");
 
-int _start()
+int main()
 {
-	CtrlData pad, old_pad;
+	SceCtrlData pad, old_pad;
 	struct chip8_context chip8;
 	int i, pause = 0;
 
@@ -37,7 +38,7 @@ int _start()
 	while (1) {
 		clear_screen();
 
-		sceCtrlPeekBufferPositive(0, (SceCtrlData *)&pad, 1);
+		sceCtrlPeekBufferPositive(0, &pad, 1);
 
 		font_draw_stringf(10, 10, BLACK, "VITA-8 emulator by xerpi");
 

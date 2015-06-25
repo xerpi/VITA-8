@@ -4,6 +4,10 @@
 #include <stddef.h>
 #include "chip-8.h"
 
+#define align_mem(addr, align) (((addr) + ((align) - 1)) & ~((align) - 1))
+#define lerp(value, from_max, to_max) ((((value*10) * (to_max*10))/(from_max*10))/10)
+#define abs(x) ((x) < 0 ? (-x) : (x))
+
 #ifdef __cplusplus
 extern "C" {
 #endif

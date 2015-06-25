@@ -8,42 +8,30 @@ SOURCES		:= source
 DATA		:= data
 INCLUDES	:= include
 
-STUBS = libSceLibKernel.a libSceDisplay.a libSceGxm.a libSceSysmem.a \
-	libSceCtrl.a libSceTouch.a
+LIBS = -lc_stub -lSceKernel_stub -lSceDisplay_stub -lSceGxm_stub	\
+	-lSceCtrl_stub -lSceTouch_stub
 
-NIDS_DB = sample-db.json
 
 CFILES   := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.c))
 BINFILES := $(foreach dir,$(DATA), $(wildcard $(dir)/*.bin))
 OBJS     := $(addsuffix .o,$(BINFILES)) $(CFILES:.c=.o)
 
 PREFIX  = $(DEVKITARM)/bin/arm-none-eabi
-AS	= $(PREFIX)-as
 CC      = $(PREFIX)-gcc
+AS      = $(PREFIX)-as
 READELF = $(PREFIX)-readelf
 OBJDUMP = $(PREFIX)-objdump
-CFLAGS  = -Wall -nostartfiles -nostdlib -I$(PSP2SDK)/include -I$(INCLUDES) -I$(DATA)
+CFLAGS  = -Wall -specs=$(PSP2SDK)/psp2.specs -I$(INCLUDES) -I$(DATA)
+ASFLAGS = $(CFLAGS)
 
-STUBS_FULL = $(addprefix stubs/, $(STUBS))
 
-all: $(TARGET).velf
+all: $(TARGET)_fixup.elf
 
-$(TARGET).velf: $(TARGET).elf
-	vita-elf-create $(TARGET).elf $(TARGET).velf $(NIDS_DB)
-#	$(READELF) -a $(TARGET).velf
-#	$(OBJDUMP) -D -j .text.fstubs $(TARGET).velf
-#	$(OBJDUMP) -s -j .data.vstubs -j .sceModuleInfo.rodata -j .sceLib.ent -j .sceExport.rodata -j .sceLib.stubs -j .sceImport.rodata -j .sceFNID.rodata -j .sceFStub.rodata -j .sceVNID.rodata -j .sceVStub.rodata -j .sce.rel $(TARGET).velf
+%_fixup.elf: %.elf
+	psp2-fixup -q -S $< $@
 
-$(TARGET).elf: $(OBJS) $(STUBS_FULL)
-	$(CC) -Wl,-q -o $@ $^ $(CFLAGS)
-
-%.o: %.c
-	$(CC) -c -o $@ $< $(CFLAGS)
-
-$(STUBS_FULL):
-	@mkdir -p stubs
-	vita-libs-gen $(NIDS_DB) stubs/
-	$(MAKE) -C stubs $(notdir $@)
+$(TARGET).elf: $(OBJS)
+	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
 .SUFFIXES: .bin
 
@@ -58,8 +46,10 @@ define bin2o
 endef
 
 clean:
-	@rm -rf $(TARGET).elf $(TARGET).velf $(OBJS) stubs $(DATA)/*.h
+	@rm -rf $(TARGET)_fixup.elf $(TARGET).elf $(OBJS) $(DATA)/*.h
 
-copy: $(TARGET).velf
-	@cp $(TARGET).velf ~/shared/vitasample.elf
+copy: $(TARGET)_fixup.elf
+	@cp $(TARGET)_fixup.elf ~/shared/vitasample.elf
+	@echo "Copied!"
+
 

@@ -1,7 +1,7 @@
 #ifndef CHIP8_H
 #define CHIP8_H
 
-#include "defines.h"
+#include <psp2/types.h>
 
 #ifdef __cplusplus
 extern "C" {
