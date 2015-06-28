@@ -10,6 +10,7 @@
 #include <psp2/gxm.h>
 #include <psp2/types.h>
 #include <psp2/moduleinfo.h>
+#include <psp2/kernel/processmgr.h>
 
 #include "chip-8.h"
 #include "utils.h"
@@ -112,5 +113,6 @@ int main()
 
 	chip8_fini(&chip8);
 	end_video();
+	sceKernelExitProcess(0);
 	return 0;
 }

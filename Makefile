@@ -21,7 +21,7 @@ CC      = $(PREFIX)-gcc
 AS      = $(PREFIX)-as
 READELF = $(PREFIX)-readelf
 OBJDUMP = $(PREFIX)-objdump
-CFLAGS  = -Wall -specs=$(PSP2SDK)/psp2.specs -I$(INCLUDES) -I$(DATA)
+CFLAGS  = -Wall -specs=psp2.specs -I$(INCLUDES) -I$(DATA)
 ASFLAGS = $(CFLAGS)
 
 
