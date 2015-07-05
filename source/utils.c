@@ -22,7 +22,8 @@ int chip8_loadrom_file(struct chip8_context *ctx, const char *path)
 		return 0;
 	}
 
-	sceIoRead(fd, &ctx->RAM[CHIP8_ROM_LOAD_ADDR], CHIP8_ROM_MAX_SIZE);
+	int n = sceIoRead(fd, &(ctx->RAM[CHIP8_ROM_LOAD_ADDR]), CHIP8_ROM_MAX_SIZE);
+	printf("loaded %i bytes from %s\n", n, path);
 	sceIoClose(fd);
 
 	return 1;
@@ -30,7 +31,7 @@ int chip8_loadrom_file(struct chip8_context *ctx, const char *path)
 
 int chip8_loadrom_memory(struct chip8_context *ctx, const void *addr, unsigned int size)
 {
-	memcpy(&(ctx->RAM[0x200]), addr, size);
+	memcpy(&(ctx->RAM[CHIP8_ROM_LOAD_ADDR]), addr, size);
 	return size;
 }
 

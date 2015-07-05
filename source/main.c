@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <sys/syslimits.h>
 
 #include <psp2/ctrl.h>
 #include <psp2/touch.h>
@@ -17,21 +18,23 @@
 #include "chip-8.h"
 #include "utils.h"
 #include "font.h"
-
-#include "PONG2_bin.h"
+#include "file_chooser.h"
 
 PSP2_MODULE_INFO(0, 0, "VITA-8");
 
 int main()
 {
+	char rom_file[PATH_MAX];
 	SceCtrlData pad, old_pad;
 	struct chip8_context chip8;
 	int i, pause = 0;
 
 	vita2d_init();
 
+	file_choose("cache0:/", rom_file);
+
 	chip8_init(&chip8, 64, 32);
-	chip8_loadrom_memory(&chip8, PONG2_bin, PONG2_bin_size);
+	chip8_loadrom_file(&chip8, rom_file);
 
 	vita2d_texture *display_tex = vita2d_create_empty_texture(64, 32);
 	unsigned int *display_data = vita2d_texture_get_datap(display_tex);
@@ -106,6 +109,12 @@ int main()
 
 		if (pause) {
 			font_draw_stringf(SCREEN_W/2 - 40, SCREEN_H - 50, WHITE, "PAUSE");
+			if (keys_down & PSP2_CTRL_SQUARE) {
+				chip8_reset(&chip8);
+				file_choose("cache0:/", rom_file);
+				chip8_loadrom_file(&chip8, rom_file);
+				pause = 0;
+			}
 		}
 
 		old_pad = pad;

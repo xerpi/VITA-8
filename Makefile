@@ -5,7 +5,6 @@
 
 TARGET		:= VITA-8
 SOURCES		:= source
-DATA		:= data
 INCLUDES	:= include
 
 LIBS = -lvita2d -lm -lc_stub -lSceKernel_stub -lSceDisplay_stub -lSceGxm_stub	\
@@ -21,7 +20,7 @@ CC      = $(PREFIX)-gcc
 AS      = $(PREFIX)-as
 READELF = $(PREFIX)-readelf
 OBJDUMP = $(PREFIX)-objdump
-CFLAGS  = -Wall -specs=psp2.specs -I$(INCLUDES) -I$(DATA)
+CFLAGS  = -Wall -specs=psp2.specs -I$(INCLUDES)
 ASFLAGS = $(CFLAGS)
 
 
@@ -34,16 +33,6 @@ $(TARGET).elf: $(OBJS)
 	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
 .SUFFIXES: .bin
-
-%.bin.o: %.bin
-	$(bin2o)
-
-define bin2o
-	bin2s $< | $(AS) -o $(@)
-	echo "extern const unsigned char" `(echo $(<F) | sed -e 's/^\([0-9]\)/_\1/' | tr . _)`"_end[];" > $(DATA)/`(echo $(<F) | tr . _)`.h
-	echo "extern const unsigned char" `(echo $(<F) | sed -e 's/^\([0-9]\)/_\1/' | tr . _)`"[];" >> $(DATA)/`(echo $(<F) | tr . _)`.h
-	echo "extern const unsigned int" `(echo $(<F) | sed -e 's/^\([0-9]\)/_\1/' | tr . _)`_size";" >> $(DATA)/`(echo $(<F) | tr . _)`.h
-endef
 
 clean:
 	@rm -rf $(TARGET)_fixup.elf $(TARGET).elf $(OBJS) $(DATA)/*.h
