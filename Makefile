@@ -8,7 +8,7 @@ SOURCES		:= source
 DATA		:= data
 INCLUDES	:= include
 
-LIBS = -lc_stub -lSceKernel_stub -lSceDisplay_stub -lSceGxm_stub	\
+LIBS = -lvita2d -lm -lc_stub -lSceKernel_stub -lSceDisplay_stub -lSceGxm_stub	\
 	-lSceCtrl_stub -lSceTouch_stub
 
 

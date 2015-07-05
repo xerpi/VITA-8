@@ -4,9 +4,16 @@
 #include <stddef.h>
 #include "chip-8.h"
 
-#define align_mem(addr, align) (((addr) + ((align) - 1)) & ~((align) - 1))
-#define lerp(value, from_max, to_max) ((((value*10) * (to_max*10))/(from_max*10))/10)
-#define abs(x) ((x) < 0 ? (-x) : (x))
+#define RGBA8(r, g, b, a)      ((((a)&0xFF)<<24) | (((b)&0xFF)<<16) | (((g)&0xFF)<<8) | (((r)&0xFF)<<0))
+
+#define SCREEN_W 960
+#define SCREEN_H 544
+
+#define RED   RGBA8(255,0,0,255)
+#define GREEN RGBA8(0,255,0,255)
+#define BLUE  RGBA8(0,0,255,255)
+#define BLACK RGBA8(0,0,0,255)
+#define WHITE RGBA8(255,255,255,255)
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,7 +24,7 @@ int ffs(int i);
 int chip8_loadrom_file(struct chip8_context *ctx, const char *path);
 int chip8_loadrom_memory(struct chip8_context *ctx, const void *addr, unsigned int size);
 void chip8_disp_to_buf(struct chip8_context *ctx, unsigned int *buffer);
-void blit_scale(unsigned int *buffer, int x, int y, int w, int h, int scale);
+void chip8_core_dump(struct chip8_context *ctx);
 
 
 #ifdef __cplusplus

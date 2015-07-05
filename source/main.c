@@ -12,9 +12,11 @@
 #include <psp2/moduleinfo.h>
 #include <psp2/kernel/processmgr.h>
 
+#include <vita2d.h>
+
 #include "chip-8.h"
 #include "utils.h"
-#include "draw.h"
+#include "font.h"
 
 #include "PONG2_bin.h"
 
@@ -26,22 +28,27 @@ int main()
 	struct chip8_context chip8;
 	int i, pause = 0;
 
-	init_video();
+	//init_video();
+	vita2d_init();
 
 	chip8_init(&chip8, 64, 32);
 	chip8_loadrom_memory(&chip8, PONG2_bin, PONG2_bin_size);
-	unsigned int disp_buf[chip8.disp_w*chip8.disp_h];
+
+	vita2d_texture *display_tex = vita2d_create_empty_texture(64, 32);
+	unsigned int *display_data = vita2d_texture_get_datap(display_tex);
 
 	int scale = 12;
 	int pos_x = SCREEN_W/2 - (chip8.disp_w/2)*scale;
 	int pos_y = SCREEN_H/2 - (chip8.disp_h/2)*scale;
 
 	while (1) {
-		clear_screen();
-
 		sceCtrlPeekBufferPositive(0, &pad, 1);
+		if (pad.buttons & PSP2_CTRL_SELECT) break;
 
-		font_draw_stringf(10, 10, BLACK, "VITA-8 emulator by xerpi");
+		vita2d_start_drawing();
+		vita2d_clear_screen();
+
+		font_draw_stringf(10, 10, WHITE, "VITA-8 emulator by xerpi");
 
 		unsigned int keys_down = pad.buttons & ~old_pad.buttons;
 		unsigned int keys_up = ~pad.buttons & old_pad.buttons;
@@ -88,31 +95,28 @@ int main()
 		}
 
 		if (!pause) {
-			for (i = 0; i < 20; i++) {
+			// 512/60 = 8.53333
+			for (i = 0; i < 9; i++) {
 				chip8_step(&chip8);
 			}
 		}
 
-		chip8_disp_to_buf(&chip8, disp_buf);
+		chip8_disp_to_buf(&chip8, display_data);
 
-		blit_scale(disp_buf,
-			pos_x,
-			pos_y,
-			chip8.disp_w,
-			chip8.disp_h,
-			scale);
+		vita2d_draw_texture_scale(display_tex, pos_x, pos_y, scale, scale);
 
 		if (pause) {
-			font_draw_stringf(SCREEN_W/2 - 40, SCREEN_H - 50, BLACK, "PAUSE");
+			font_draw_stringf(SCREEN_W/2 - 40, SCREEN_H - 50, WHITE, "PAUSE");
 		}
 
 		old_pad = pad;
-		swap_buffers();
-		sceDisplayWaitVblankStart();
+		vita2d_end_drawing();
+		vita2d_swap_buffers();
 	}
 
 	chip8_fini(&chip8);
-	end_video();
+	vita2d_fini();
+	vita2d_free_texture(display_tex);
 	sceKernelExitProcess(0);
 	return 0;
 }

@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <strings.h>
 #include "utils.h"
-#include "draw.h"
 
 
 #define FONT_OFFSET 0
@@ -299,18 +298,3 @@ void chip8_key_release(struct chip8_context *ctx, uint8_t key)
 		ctx->keyboard &= ~(1<<key);
 	}
 }
-
-#define DEBUG(...) font_draw_stringf(10, 500-20 + (y+=20), WHITE, __VA_ARGS__);
-
-void chip8_core_dump(struct chip8_context *ctx)
-{
-	int y = 0;
-	DEBUG("Registers:");
-	DEBUG("V0: 0x%02X  V1: 0x%02X  V2: 0x%02X  V3: 0x%02X", ctx->regs.V[0], ctx->regs.V[1], ctx->regs.V[2], ctx->regs.V[3]);
-	DEBUG("V4: 0x%02X  V5: 0x%02X  V6: 0x%02X  V7: 0x%02X", ctx->regs.V[4], ctx->regs.V[5], ctx->regs.V[6], ctx->regs.V[7]);
-	DEBUG("V8: 0x%02X  V9: 0x%02X  VA: 0x%02X  VB: 0x%02X", ctx->regs.V[8], ctx->regs.V[9], ctx->regs.V[0xA], ctx->regs.V[0xB]);
-	DEBUG("VC: 0x%02X  VD: 0x%02X  VE: 0x%02X  VF: 0x%02X", ctx->regs.V[0xC], ctx->regs.V[0xD], ctx->regs.V[0xE], ctx->regs.V[0xF]);
-	DEBUG("I: 0x%04X  PC: 0x%04X  SP: 0x%02X", ctx->regs.I, ctx->regs.PC, ctx->regs.SP);
-	DEBUG("DT: 0x%02X  ST: 0x%02X", ctx->regs.DT, ctx->regs.ST);
-}
-
