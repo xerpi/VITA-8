@@ -28,7 +28,6 @@ int main()
 	struct chip8_context chip8;
 	int i, pause = 0;
 
-	//init_video();
 	vita2d_init();
 
 	chip8_init(&chip8, 64, 32);
@@ -95,7 +94,7 @@ int main()
 		}
 
 		if (!pause) {
-			// 512/60 = 8.53333
+			// 512kHz/60 = 8.53333
 			for (i = 0; i < 9; i++) {
 				chip8_step(&chip8);
 			}
