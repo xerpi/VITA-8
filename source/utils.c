@@ -1,4 +1,7 @@
 #include <string.h>
+#include <psp2/types.h>
+#include <psp2/io/fcntl.h>
+#include <psp2/io/dirent.h>
 #include "utils.h"
 #include "font.h"
 
@@ -14,7 +17,15 @@ int ffs(int i)
 
 int chip8_loadrom_file(struct chip8_context *ctx, const char *path)
 {
-	return 0;
+	SceUID fd;
+	if (!(fd = sceIoOpen(path, PSP2_O_RDONLY, 0777))) {
+		return 0;
+	}
+
+	sceIoRead(fd, &ctx->RAM[CHIP8_ROM_LOAD_ADDR], CHIP8_ROM_MAX_SIZE);
+	sceIoClose(fd);
+
+	return 1;
 }
 
 int chip8_loadrom_memory(struct chip8_context *ctx, const void *addr, unsigned int size)
