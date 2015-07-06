@@ -180,8 +180,8 @@ int file_choose(const char *start_path, char *chosen_file)
 				10,
 				40 + i*20,
 				WHITE,
-				"%c %s",
-				(selected == i) ? '>' : ' ',
+				"%s %s",
+				(selected == i) ? ">" : "",
 				entry->name);
 
 			entry = entry->next;
