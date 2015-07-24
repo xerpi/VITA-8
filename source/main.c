@@ -97,7 +97,7 @@ int main()
 		}
 
 		if (!pause) {
-			// 512kHz/60 = 8.53333
+			// 512Hz/60 = 8.53333
 			for (i = 0; i < 9; i++) {
 				chip8_step(&chip8);
 			}

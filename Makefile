@@ -7,7 +7,7 @@ TARGET		:= VITA-8
 SOURCES		:= source
 INCLUDES	:= include
 
-LIBS = -lvita2d -lm -lc_stub -lSceKernel_stub -lSceDisplay_stub -lSceGxm_stub	\
+LIBS = -lvita2d -lSceKernel_stub -lSceDisplay_stub -lSceGxm_stub	\
 	-lSceCtrl_stub -lSceTouch_stub
 
 
