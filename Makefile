@@ -8,37 +8,33 @@ SOURCES		:= source
 INCLUDES	:= include
 
 LIBS = -lvita2d -lSceKernel_stub -lSceDisplay_stub -lSceGxm_stub	\
-	-lSceCtrl_stub -lSceTouch_stub
-
+	-lSceCtrl_stub -lSceTouch_stub -lm
 
 CFILES   := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.c))
 BINFILES := $(foreach dir,$(DATA), $(wildcard $(dir)/*.bin))
 OBJS     := $(addsuffix .o,$(BINFILES)) $(CFILES:.c=.o)
 
-PREFIX  = $(DEVKITARM)/bin/arm-none-eabi
+PREFIX  = arm-vita-eabi
 CC      = $(PREFIX)-gcc
-AS      = $(PREFIX)-as
-READELF = $(PREFIX)-readelf
-OBJDUMP = $(PREFIX)-objdump
-CFLAGS  = -Wall -specs=psp2.specs -I$(INCLUDES)
+CFLAGS  = -Wl,-q -Wall -O3 -I$(INCLUDES)
 ASFLAGS = $(CFLAGS)
 
+all: $(TARGET).velf
 
-all: $(TARGET)_fixup.elf
-
-%_fixup.elf: %.elf
-	psp2-fixup -q -S $< $@
+%.velf: %.elf
+	$(PREFIX)-strip -g $<
+	vita-elf-create $< $@ $(VITASDK)/bin/db.json
 
 $(TARGET).elf: $(OBJS)
 	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
-.SUFFIXES: .bin
-
 clean:
-	@rm -rf $(TARGET)_fixup.elf $(TARGET).elf $(OBJS) $(DATA)/*.h
+	@rm -rf $(TARGET).velf $(TARGET).elf $(OBJS)
 
-copy: $(TARGET)_fixup.elf
-	@cp $(TARGET)_fixup.elf ~/shared/vitasample.elf
+copy: $(TARGET).velf
+	@cp $(TARGET).velf ~/shared/vitasample.elf
 	@echo "Copied!"
 
+run: $(TARGET).velf
+	@sh run_homebrew_unity.sh $(TARGET).velf
 
