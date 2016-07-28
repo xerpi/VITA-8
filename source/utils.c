@@ -18,7 +18,7 @@ int ffs(int i)
 int chip8_loadrom_file(struct chip8_context *ctx, const char *path)
 {
 	SceUID fd;
-	if (!(fd = sceIoOpen(path, PSP2_O_RDONLY, 0777))) {
+	if (!(fd = sceIoOpen(path, SCE_O_RDONLY, 0777))) {
 		return 0;
 	}
 
