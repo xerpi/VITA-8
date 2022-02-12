@@ -10,10 +10,7 @@
 #include <psp2/display.h>
 #include <psp2/gxm.h>
 #include <psp2/types.h>
-#include <psp2/moduleinfo.h>
 #include <psp2/kernel/processmgr.h>
-
-#include <vita2d.h>
 
 #include "chip-8.h"
 #include "utils.h"
@@ -28,23 +25,19 @@ int main()
 	unsigned int keys_down;
 	unsigned int keys_up;
 	struct chip8_context chip8;
-	vita2d_texture *display_tex;
-	unsigned int *display_data;
+	uint32_t display_data[64 * 32];
 	int scale;
 	int pos_x;
 	int pos_y;
 	int pause = 0;
 
-	vita2d_init();
+	framebuffer_map();
 
 	file_choose("ux0:/cache", rom_file,
 		"Choose a CHIP-8 ROM:", NULL);
 
 	chip8_init(&chip8, 64, 32);
 	chip8_loadrom_file(&chip8, rom_file);
-
-	display_tex = vita2d_create_empty_texture(64, 32);
-	display_data = vita2d_texture_get_datap(display_tex);
 
 	scale = 12;
 	pos_x = SCREEN_W/2 - (chip8.disp_w/2)*scale;
@@ -56,8 +49,8 @@ int main()
 		if (pad.buttons & SCE_CTRL_SELECT)
 			break;
 
-		vita2d_start_drawing();
-		vita2d_clear_screen();
+		//vita2d_start_drawing();
+		//vita2d_clear_screen();
 
 		font_draw_stringf(10, 10, WHITE, "VITA-8 emulator by xerpi");
 
@@ -115,7 +108,7 @@ int main()
 
 		chip8_disp_to_buf(&chip8, display_data);
 
-		vita2d_draw_texture_scale(display_tex, pos_x, pos_y, scale, scale);
+		//vita2d_draw_texture_scale(display_tex, pos_x, pos_y, scale, scale);
 
 		if (pause) {
 			font_draw_stringf(SCREEN_W/2 - 40, SCREEN_H - 50, WHITE, "PAUSE");
@@ -129,13 +122,13 @@ int main()
 		}
 
 		old_pad = pad;
-		vita2d_end_drawing();
-		vita2d_swap_buffers();
+		//vita2d_end_drawing();
+		//vita2d_swap_buffers();
+		sceDisplayWaitVblankStart();
 	}
 
 	chip8_fini(&chip8);
-	vita2d_free_texture(display_tex);
-	vita2d_fini();
+	framebuffer_unmap();
 	sceKernelExitProcess(0);
 	return 0;
 }

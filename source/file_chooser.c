@@ -7,21 +7,17 @@
 #include <psp2/io/fcntl.h>
 #include <psp2/io/dirent.h>
 #include <psp2/kernel/processmgr.h>
-#include <vita2d.h>
 #include "font.h"
+#include "draw.h"
 #include "file_chooser.h"
 
 #define GAME_EXIT_COMBO (SCE_CTRL_SELECT)
 
-#define SCREEN_W 960
-#define SCREEN_H 544
 #define LIST_MAX_ONSCREEN ((SCREEN_H-40)/20)
 
 #define min(a,b) ((a) < (b) ? (a) : (b))
 #define max(a,b) ((a) > (b) ? (a) : (b))
 
-#define WHITE RGBA8(255, 255, 255, 255)
-#define GREEN RGBA8(0,   255, 0  , 255)
 
 typedef struct file_list_entry {
 	char name[PATH_MAX];
@@ -190,7 +186,7 @@ int file_choose(const char *start_path, char *chosen_file, const char *title, co
 				if (strcmp(entry->name, "..") == 0) {
 					dir_up(cur_path);
 				} else {
-					char new_path[PATH_MAX];
+					char new_path[PATH_MAX+2];
 					sprintf(new_path, "%s/%s", cur_path, entry->name);
 					strcpy(cur_path, new_path);
 				}
@@ -209,9 +205,8 @@ int file_choose(const char *start_path, char *chosen_file, const char *title, co
 			selected = 0;
 		}
 
-
-		vita2d_start_drawing();
-		vita2d_clear_screen();
+		//vita2d_start_drawing();
+		//vita2d_clear_screen();
 
 		font_draw_stringf(10, 10, WHITE, title);
 
@@ -230,8 +225,8 @@ int file_choose(const char *start_path, char *chosen_file, const char *title, co
 		}
 
 		old_pad = pad;
-		vita2d_end_drawing();
-		vita2d_swap_buffers();
+		//vita2d_end_drawing();
+		//vita2d_swap_buffers();
 	}
 
 	return 0;

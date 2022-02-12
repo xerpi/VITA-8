@@ -6,7 +6,7 @@
 #include <stdarg.h>
 #include <vita2d.h>
 #include "font.h"
-#include "utils.h"
+#include "draw.h"
 
 extern const unsigned char msx_font[];
 
@@ -19,7 +19,7 @@ void font_draw_char(int x, int y, unsigned int color, char c)
 		for (j = 0; j < 8; ++j) {
 			pos_x = x + j*2;
 			if ((*font & (128 >> j))) {
-				vita2d_draw_rectangle(pos_x, pos_y, 2, 2, color);
+				draw_rectangle(pos_x, pos_y, 2, 2, color);
 			}
 		}
 		++font;
