@@ -5,7 +5,7 @@ INCLUDES = include
 
 LIBS =  -lSceDisplay_stub -lSceGxm_stub \
 	-lSceSysmodule_stub -lSceCtrl_stub -lScePgf_stub \
-	-lSceCommonDialog_stub -lm -lc
+	-lSceCommonDialog_stub
 
 CFILES   := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.c))
 BINFILES := $(foreach dir,$(DATA), $(wildcard $(dir)/*.bin))

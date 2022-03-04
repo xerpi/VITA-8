@@ -14,6 +14,7 @@
 
 #include "chip-8.h"
 #include "utils.h"
+#include "draw.h"
 #include "font.h"
 #include "file_chooser.h"
 
@@ -33,8 +34,9 @@ int main()
 
 	framebuffer_map();
 
-	file_choose("ux0:/cache", rom_file,
+	file_choose("ux0:/", rom_file,
 		"Choose a CHIP-8 ROM:", NULL);
+	clear_screen();
 
 	chip8_init(&chip8, 64, 32);
 	chip8_loadrom_file(&chip8, rom_file);
@@ -79,14 +81,15 @@ int main()
 			chip8_key_release(&chip8, 0xD);
 		}
 
-		if (pad.buttons & SCE_CTRL_LTRIGGER) {
+		if (keys_down & SCE_CTRL_LTRIGGER) {
 			scale--;
 			if (scale < 1)
 				scale = 1;
 			/* Re-center the image */
 			pos_x = SCREEN_W/2 - (chip8.disp_w/2)*scale;
 			pos_y = SCREEN_H/2 - (chip8.disp_h/2)*scale;
-		} else if (pad.buttons & SCE_CTRL_RTRIGGER) {
+			clear_screen();
+		} else if (keys_down & SCE_CTRL_RTRIGGER) {
 			scale++;
 			/* Don't go outside of the screen! */
 			if ((chip8.disp_w*scale) > SCREEN_W)
@@ -94,10 +97,13 @@ int main()
 			/* Re-center the image */
 			pos_x = SCREEN_W/2 - (chip8.disp_w/2)*scale;
 			pos_y = SCREEN_H/2 - (chip8.disp_h/2)*scale;
+			clear_screen();
 		}
 
-		if (keys_down & SCE_CTRL_START)
+		if (keys_down & SCE_CTRL_START) {
 			pause = !pause;
+			clear_screen();
+		}
 
 		if (!pause) {
 			// 512Hz/60 = 8.53333
@@ -108,15 +114,22 @@ int main()
 
 		chip8_disp_to_buf(&chip8, display_data);
 
+		for (int i = 0; i < 32; i++)
+			for (int j = 0; j < 64; j++)
+				draw_rectangle(SCREEN_W/2 - scale*64/2 + j*scale,
+					      SCREEN_H/2 - scale*32/2 + i*scale,
+					      scale, scale, display_data[64 * i + j]);
+
 		//vita2d_draw_texture_scale(display_tex, pos_x, pos_y, scale, scale);
 
 		if (pause) {
-			font_draw_stringf(SCREEN_W/2 - 40, SCREEN_H - 50, WHITE, "PAUSE");
+			font_draw_stringf(SCREEN_W/2 - 40, SCREEN_H - 80, WHITE, "PAUSE");
 			if (keys_down & SCE_CTRL_SQUARE) {
 				chip8_reset(&chip8);
-				file_choose("ux0:/cache", rom_file,
+				file_choose("ux0:/", rom_file,
 					"Choose a CHIP-8 ROM:", NULL);
 				chip8_loadrom_file(&chip8, rom_file);
+				clear_screen();
 				pause = 0;
 			}
 		}

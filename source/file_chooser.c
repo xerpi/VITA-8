@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/syslimits.h>
 #include <psp2/types.h>
+#include <psp2/display.h>
 #include <psp2/ctrl.h>
 #include <psp2/io/fcntl.h>
 #include <psp2/io/dirent.h>
@@ -61,7 +62,12 @@ static void file_list_empty(file_list *list)
 static int file_supported(const char *filename, const char *supported_ext[])
 {
 	int i;
-	const char *ext = strrchr(filename, '.');
+	const char *ext;
+
+	if (!supported_ext)
+		return 1;
+
+	ext = strrchr(filename, '.');
 	if (ext) {
 		i = 0;
 		while (supported_ext[i]) {
@@ -90,6 +96,8 @@ static int file_list_build(const char *path, file_list *list, const char *suppor
 	while (sceIoDread(dir, &dirent) > 0) {
 
 		file_list_entry *entry = malloc(sizeof(*entry));
+		if (!entry)
+			continue;
 
 		strcpy(entry->name, dirent.d_name);
 		entry->is_dir = SCE_S_ISDIR(dirent.d_stat.st_mode);
@@ -152,9 +160,14 @@ int file_choose(const char *start_path, char *chosen_file, const char *title, co
 
 	file_list_build(cur_path, &list, supported_ext);
 
+	clear_screen();
+
 	while (1) {
 		sceCtrlPeekBufferPositive(0, &pad, 1);
 		keys_down = pad.buttons & ~old_pad.buttons;
+
+		if (pad.buttons)
+			clear_screen();
 
 		if (pad.buttons & GAME_EXIT_COMBO)
 			return -1;
@@ -225,6 +238,7 @@ int file_choose(const char *start_path, char *chosen_file, const char *title, co
 		}
 
 		old_pad = pad;
+		sceDisplayWaitVblankStart();
 		//vita2d_end_drawing();
 		//vita2d_swap_buffers();
 	}
